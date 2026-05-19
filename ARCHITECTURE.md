@@ -165,19 +165,27 @@ Every endpoint returns the same shape. The `TransformInterceptor` handles wrappi
 ```
 
 ### Key Endpoints
+http://localhost:3000/api/docs
 
 | Method | Path | Guard | Description |
 |--------|------|-------|-------------|
-| `POST` | `/api/v1/auth/register` | Public | Step 1-3 registration |
-| `POST` | `/api/v1/auth/login` | Public | Returns `accessToken` + `refreshToken` |
-| `POST` | `/api/v1/auth/refresh` | Public | Rotates refresh token |
-| `GET` | `/api/v1/users/me` | JWT | Current user profile |
-| `GET` | `/api/v1/coins/applications` | JWT | User's coin applications |
-| `POST` | `/api/v1/coins/applications` | JWT | Submit new application |
-| `GET` | `/api/v1/investments` | JWT | User's investments |
-| `GET` | `/api/v1/metals/live` | JWT | Latest metal prices |
-| `GET` | `/api/v1/admin/applications` | Manager+ | All applications with filters |
-| `PATCH`| `/api/v1/admin/applications/:id/status` | Manager+ | Approve / reject / send-to-crystal |
+| `POST` | `/api/auth/register` | Public | Step 1-3 registration |
+| `POST` | `/api/auth/login` | Public | Returns `accessToken` + `refreshToken` |
+| `POST` | `/api/auth/refresh` | Public | Rotates refresh token |
+| `GET` | `/api/users/me` | JWT | Current user profile |
+
+
+| `GET` | `/api/coins/applications` | JWT | User's coin applications |
+| `POST` | `/api/coins/applications` | JWT | Submit new application |
+| `GET` | `/api/investments` | JWT | User's investments |
+| `GET` | `/api/metals/live` | JWT | Latest metal prices |
+| `GET` | `/api/admin/applications` | Manager+ | All applications with filters |
+| `PATCH`| `/api/admin/applications/:id/status` | Manager+ | Approve / reject / send-to-crystal |
+
+#admin auth : admin@mergestars.com / Admin@123456
+# http://localhost:3000/api/admin/users?accessToken="" . users list 
+# http://localhost:3000/api/admin/stats?  . stats roles 
+
 
 ### WebSocket Events
 
