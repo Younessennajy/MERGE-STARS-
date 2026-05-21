@@ -106,3 +106,6 @@
 
 
 *Mis à jour : Mai 2026*
+
+
+Manager 

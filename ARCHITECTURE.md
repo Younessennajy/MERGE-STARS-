@@ -165,19 +165,27 @@ Every endpoint returns the same shape. The `TransformInterceptor` handles wrappi
 ```
 
 ### Key Endpoints
+http://localhost:3000/api/docs
 
 | Method | Path | Guard | Description |
 |--------|------|-------|-------------|
-| `POST` | `/api/v1/auth/register` | Public | Step 1-3 registration |
-| `POST` | `/api/v1/auth/login` | Public | Returns `accessToken` + `refreshToken` |
-| `POST` | `/api/v1/auth/refresh` | Public | Rotates refresh token |
-| `GET` | `/api/v1/users/me` | JWT | Current user profile |
-| `GET` | `/api/v1/coins/applications` | JWT | User's coin applications |
-| `POST` | `/api/v1/coins/applications` | JWT | Submit new application |
-| `GET` | `/api/v1/investments` | JWT | User's investments |
-| `GET` | `/api/v1/metals/live` | JWT | Latest metal prices |
-| `GET` | `/api/v1/admin/applications` | Manager+ | All applications with filters |
-| `PATCH`| `/api/v1/admin/applications/:id/status` | Manager+ | Approve / reject / send-to-crystal |
+| `POST` | `/api/auth/register` | Public | Step 1-3 registration |
+| `POST` | `/api/auth/login` | Public | Returns `accessToken` + `refreshToken` |
+| `POST` | `/api/auth/refresh` | Public | Rotates refresh token |
+| `GET` | `/api/users/me` | JWT | Current user profile |
+
+
+| `GET` | `/api/coins/applications` | JWT | User's coin applications |
+| `POST` | `/api/coins/applications` | JWT | Submit new application |
+| `GET` | `/api/investments` | JWT | User's investments |
+| `GET` | `/api/metals/live` | JWT | Latest metal prices |
+| `GET` | `/api/admin/applications` | Manager+ | All applications with filters |
+| `PATCH`| `/api/admin/applications/:id/status` | Manager+ | Approve / reject / send-to-crystal |
+
+#admin auth : admin@mergestars.com / Admin@123456
+# http://localhost:3000/api/admin/users?accessToken="" . users list 
+# http://localhost:3000/api/admin/stats?  . stats roles 
+
 
 ### WebSocket Events
 
@@ -364,6 +372,455 @@ admin
 | Manage own products | ✅ | ✅ | ✅ | ✅ |
 | View own orders | ✅ | ✅ | ✅ | ✅ |
 | Public showcase | ✅ | ✅ | ✅ | ✅ |
+
+
+---
+
+## 8. API Endpoints — Full Reference with Examples
+
+> **Base URL:** `http://localhost:3000/api`  
+> **Swagger UI:** `http://localhost:3000/api/docs`  
+> **Auth header (protected routes):** `Authorization: Bearer <accessToken>`
+
+### Response envelope
+
+Every successful response is wrapped automatically:
+
+```json
+{
+  "data": { ... },
+  "meta": {
+    "timestamp": "2026-05-19T14:00:00.000Z",
+    "path": "/api/auth/login"
+  }
+}
+```
+
+Error responses:
+
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Login failed: incorrect password.",
+    "statusCode": 401
+  }
+}
+```
+
+---
+
+### Auth
+
+#### `POST /api/auth/setup` — Create first admin (one-time)
+
+```bash
+curl -X POST http://localhost:3000/api/auth/setup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Super",
+    "lastName": "Admin",
+    "email": "admin@mergestars.com",
+    "personalId": "ADMIN-001",
+    "password": "Admin@123456"
+  }'
+```
+
+```json
+{
+  "data": {
+    "message": "Admin account created successfully. This endpoint is now permanently disabled.",
+    "admin": {
+      "id": "uuid",
+      "email": "admin@mergestars.com",
+      "roles": ["admin"]
+    }
+  }
+}
+```
+
+#### `POST /api/auth/register` — User registration (3 steps)
+
+```json
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "personalId": "GEO123456",
+  "phone": "+33612345678",
+  "email": "john@example.com",
+  "password": "Password1!",
+  "acceptedTerms": true,
+  "acceptedFinancingAgreement": true,
+  "confirmedAccuracy": true,
+  "region": "geo"
+}
+```
+
+```json
+{
+  "data": {
+    "message": "Account created successfully.",
+    "user": {
+      "id": "uuid",
+      "mergeId": "MS-782456",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "roles": ["user"]
+    }
+  }
+}
+```
+
+#### `POST /api/auth/login`
+
+```json
+{
+  "login": "admin@mergestars.com",
+  "password": "Admin@123456"
+}
+```
+
+```json
+{
+  "data": {
+    "message": "Login successful.",
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expiresIn": "15m",
+    "user": {
+      "id": "uuid",
+      "mergeId": "MS-782456",
+      "firstName": "Super",
+      "lastName": "Admin",
+      "email": "admin@mergestars.com",
+      "roles": ["admin"],
+      "region": "geo"
+    }
+  }
+}
+```
+
+#### `POST /api/auth/refresh` — Uses HttpOnly cookie (no body)
+
+#### `POST /api/auth/logout` — Requires Bearer token
+
+---
+
+### Users
+
+#### `GET /api/users/me`
+
+```json
+{
+  "data": {
+    "message": "Profile retrieved successfully.",
+    "user": {
+      "id": "uuid",
+      "mergeId": "MS-782456",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "roles": ["user"],
+      "mergeCoinBalance": "0.00"
+    }
+  }
+}
+```
+
+#### `GET /api/users/me/dashboard`
+
+```json
+{
+  "data": {
+    "message": "Dashboard retrieved successfully.",
+    "mergeId": "MS-782456",
+    "mergeCoinBalance": "12450.00",
+    "totalInvestedUsd": "8500.00",
+    "growthPct": 14.6,
+    "latestApplication": { "id": "uuid", "status": "in_production", "coinType": "gold_100g" },
+    "applications": [],
+    "recentActivity": []
+  }
+}
+```
+
+#### `PATCH /api/users/me`
+
+```json
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "email": "john.smith@example.com"
+}
+```
+
+---
+
+### Metals (public)
+
+#### `GET /api/metals/live`
+
+```json
+{
+  "data": {
+    "message": "Live metal prices retrieved successfully.",
+    "prices": [
+      { "metal": "gold", "priceUsd": 85, "changePct": 0, "recordedAt": "2026-05-19T14:00:00.000Z" },
+      { "metal": "silver", "priceUsd": 1.05, "changePct": 0, "recordedAt": "2026-05-19T14:00:00.000Z" }
+    ]
+  }
+}
+```
+
+---
+
+### Coins
+
+#### `POST /api/coins/calculator` — Public price preview
+
+```json
+{
+  "coinType": "gold_100g",
+  "quantity": 1,
+  "metalPurity": 99.9,
+  "financingTerm": 12
+}
+```
+
+```json
+{
+  "data": {
+    "message": "Price calculated successfully.",
+    "coinType": "gold_100g",
+    "quantity": 1,
+    "metalPurity": 99.9,
+    "metalValueUsd": 8482.65,
+    "manufacturingFeeUsd": 350,
+    "platformFeeUsd": 88.33,
+    "totalUsd": 8920.98,
+    "downPaymentUsd": 1784.2,
+    "monthlyPaymentUsd": 594.73,
+    "financingTerm": 12
+  }
+}
+```
+
+#### `POST /api/coins/applications` — Submit application
+
+```json
+{
+  "coinType": "silver_1kg",
+  "quantity": 1,
+  "specialRequest": "Engraving on reverse side",
+  "financingTerm": 12
+}
+```
+
+#### `GET /api/coins/applications` — My applications
+
+#### `GET /api/coins/applications/:id` — Detail + timeline + documents
+
+---
+
+### Investments
+
+#### `GET /api/investments`
+
+#### `GET /api/investments/summary`
+
+```json
+{
+  "data": {
+    "message": "Investment summary retrieved successfully.",
+    "totalInvestedUsd": "8500.00",
+    "growthPct": 14.6,
+    "investmentCount": 2
+  }
+}
+```
+
+---
+
+### Catalog (public — homepage)
+
+#### `GET /api/catalog/categories`
+
+```json
+{
+  "data": {
+    "message": "Categories retrieved successfully.",
+    "categories": [
+      { "id": "uuid", "name": "Jewelry", "slug": "jewelry", "tagline": "Luxury Redefined", "displayOrder": 1 }
+    ]
+  }
+}
+```
+
+#### `GET /api/catalog/brands`
+
+#### `GET /api/catalog/products?categoryId=uuid&brandId=uuid`
+
+---
+
+### Manager — Brands, Categories, Products
+
+> Requires role: `admin` or `manager` + Bearer token
+
+#### `POST /api/manager/brands`
+
+```json
+{
+  "name": "Crystal Mint",
+  "tagline": "Premium Gold Coins",
+  "description": "Swiss refinery partner",
+  "minPriceUsd": 2500,
+  "isActive": true
+}
+```
+
+#### `POST /api/manager/categories`
+
+```json
+{
+  "name": "Jewelry",
+  "tagline": "Luxury Redefined",
+  "displayOrder": 1,
+  "isActive": true
+}
+```
+
+#### `POST /api/manager/products`
+
+```json
+{
+  "categoryId": "category-uuid",
+  "brandId": "brand-uuid",
+  "name": "Gold Coin 100g",
+  "sku": "GC-100G-001",
+  "priceUsd": 8500,
+  "metalType": "gold",
+  "weightGrams": 100,
+  "purity": 99.9,
+  "stock": 50
+}
+```
+
+#### CRUD routes (same pattern for all three)
+
+| Method | Brands | Categories | Products |
+|--------|--------|------------|----------|
+| `GET` | `/api/manager/brands` | `/api/manager/categories` | `/api/manager/products` |
+| `GET` | `/api/manager/brands/:id` | `/api/manager/categories/:id` | `/api/manager/products/:id` |
+| `PATCH` | `/api/manager/brands/:id` | `/api/manager/categories/:id` | `/api/manager/products/:id` |
+| `DELETE` | `/api/manager/brands/:id` | `/api/manager/categories/:id` | `/api/manager/products/:id` |
+
+---
+
+### Admin — Users
+
+> Admin only unless noted
+
+#### `GET /api/admin/users` — Admin & Manager
+
+```bash
+curl http://localhost:3000/api/admin/users \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+#### `GET /api/admin/stats` — Admin & Manager
+
+```json
+{
+  "data": {
+    "total": 42,
+    "byRole": { "admin": 1, "manager": 3, "developer": 2, "user": 36 }
+  }
+}
+```
+
+#### `PATCH /api/admin/users/:id/roles` — Admin only
+
+```json
+{ "roles": ["manager"] }
+```
+
+#### `PATCH /api/admin/users/:id/email` — Admin only
+
+```json
+{ "email": "newemail@example.com" }
+```
+
+#### `PATCH /api/admin/users/:id/password` — Admin only
+
+```json
+{ "newPassword": "NewPass@2026" }
+```
+
+---
+
+### Admin — Applications workflow
+
+> Requires role: `admin` or `manager`
+
+#### `GET /api/admin/applications?status=submitted&coinType=gold_100g`
+
+#### `GET /api/admin/applications/:id`
+
+#### `PATCH /api/admin/applications/:id/status`
+
+```json
+{
+  "status": "under_review",
+  "note": "Documents verified, moving to review."
+}
+```
+
+Valid status flow:
+
+```
+submitted → under_review → sent_to_crystal → approved | rejected
+→ funds_received → production_queue → in_production → quality_check → ready → delivered
+```
+
+Reject example:
+
+```json
+{
+  "status": "rejected",
+  "rejectionNote": "Incomplete personal documentation."
+}
+```
+
+#### `POST /api/admin/applications/:id/documents`
+
+```json
+{
+  "name": "ID Verification",
+  "fileUrl": "https://storage.example.com/docs/id-scan.pdf",
+  "type": "identity"
+}
+```
+
+#### `PATCH /api/admin/applications/:id/production`
+
+```json
+{
+  "assignedFactory": "Factory #2",
+  "progressPercent": 45,
+  "startDate": "2026-05-19T00:00:00.000Z",
+  "expectedCompletion": "2026-06-15T00:00:00.000Z"
+}
+```
+
+---
+
+### Quick test credentials
+
+| Role | Login | Password |
+|------|-------|----------|
+| Admin | `admin@mergestars.com` | `Admin@123456` |
+
+Create admin first via `POST /api/auth/setup` if not seeded yet.
 
 
 *Last updated: May 2026 — aligned with Phase 1 implementation.*
