@@ -13,38 +13,38 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
+import { CoinsModule } from './modules/coins/coins.module';
+import { InvestmentsModule } from './modules/investments/investments.module';
+import { MetalsModule } from './modules/metals/metals.module';
+import { AuditModule } from './modules/audit/audit.module';
 import { RefreshToken } from './modules/auth/entities/refresh-token.entity';
 import { User } from './modules/users/entities/user.entity';
+import { Brand } from './modules/catalog/entities/brand.entity';
+import { Category } from './modules/catalog/entities/category.entity';
+import { Product } from './modules/catalog/entities/product.entity';
+import { CoinApplication } from './modules/coins/entities/coin-application.entity';
+import { ApplicationStatusHistory } from './modules/coins/entities/application-status-history.entity';
+import { ApplicationDocument } from './modules/coins/entities/application-document.entity';
+import { ProductionTask } from './modules/coins/entities/production-task.entity';
+import { Investment } from './modules/investments/entities/investment.entity';
+import { MetalPrice } from './modules/metals/entities/metal-price.entity';
+import { AuditLog } from './modules/audit/entities/audit-log.entity';
 
 @Module({
   imports: [
-    // ── Config ──────────────────────────────────────────────────────────────
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, databaseConfig, jwtConfig],
       envFilePath: '.env',
     }),
 
-    // ── Rate limiting (global) ───────────────────────────────────────────────
     ThrottlerModule.forRoot([
-      {
-        name: 'short',
-        ttl: 1_000,
-        limit: 10,
-      },
-      {
-        name: 'medium',
-        ttl: 10_000,
-        limit: 50,
-      },
-      {
-        name: 'long',
-        ttl: 60_000,
-        limit: 200,
-      },
+      { name: 'short', ttl: 1_000, limit: 10 },
+      { name: 'medium', ttl: 10_000, limit: 50 },
+      { name: 'long', ttl: 60_000, limit: 200 },
     ]),
 
-    // ── Database ─────────────────────────────────────────────────────────────
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -54,7 +54,20 @@ import { User } from './modules/users/entities/user.entity';
         username: config.get<string>('database.username'),
         password: config.get<string>('database.password'),
         database: config.get<string>('database.name'),
-        entities: [User, RefreshToken],
+        entities: [
+          User,
+          RefreshToken,
+          Brand,
+          Category,
+          Product,
+          CoinApplication,
+          ApplicationStatusHistory,
+          ApplicationDocument,
+          ProductionTask,
+          Investment,
+          MetalPrice,
+          AuditLog,
+        ],
         synchronize: config.get<string>('app.nodeEnv') !== 'production',
         logging: config.get<string>('app.nodeEnv') === 'development',
         ssl: config.get<boolean>('database.ssl')
@@ -63,25 +76,20 @@ import { User } from './modules/users/entities/user.entity';
       }),
     }),
 
-    // ── Feature modules ───────────────────────────────────────────────────────
+    AuditModule,
     AuthModule,
     UsersModule,
     AdminModule,
+    CatalogModule,
+    CoinsModule,
+    InvestmentsModule,
+    MetalsModule,
   ],
   providers: [
-    // Global exception filter
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
-
-    // Global response envelope
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
-
-    // Global rate-limit guard
     { provide: APP_GUARD, useClass: ThrottlerGuard },
-
-    // Global JWT guard — routes opt-out with @Public()
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-
-    // Global roles guard — routes use @Roles() to require specific roles
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })

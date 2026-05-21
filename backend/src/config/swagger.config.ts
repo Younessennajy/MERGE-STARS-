@@ -5,7 +5,7 @@ export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle('Merge Stars API')
     .setDescription(
-      'REST API for Merge Stars — authentication, users, and admin panel.',
+      'REST API for Merge Stars — auth, dashboard, coin applications, catalog, metals & admin.',
     )
     .setVersion('1.0')
     .addBearerAuth(
@@ -18,7 +18,13 @@ export function setupSwagger(app: INestApplication): void {
       'access-token',
     )
     .addTag('Auth', 'Registration, login, token refresh, logout')
-    .addTag('Admin', 'Admin panel — users, roles, email & password management')
+    .addTag('Users', 'Profile & dashboard')
+    .addTag('Coins', 'Coin applications & price calculator')
+    .addTag('Investments', 'User investment portfolio')
+    .addTag('Metals', 'Live gold, silver, platinum, palladium prices')
+    .addTag('Catalog', 'Public categories, brands & products')
+    .addTag('Manager', 'Manager panel — brands, categories & products CRUD')
+    .addTag('Admin', 'Admin panel — users & application workflow')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

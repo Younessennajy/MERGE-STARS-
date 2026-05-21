@@ -1,13 +1,16 @@
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
   Length,
   Matches,
+  Equals,
 } from 'class-validator';
 
 export class RegisterDto {
+  // ── Step 1: Personal Info ──
   @IsString()
   @IsNotEmpty()
   @Length(1, 100)
@@ -18,24 +21,21 @@ export class RegisterDto {
   @Length(1, 100)
   lastName: string;
 
-  @IsOptional()
-  @IsEmail()
-  email?: string;
+  @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
+  personalId: string;
 
   @IsOptional()
   @IsString()
   @Length(7, 30)
   phone?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @Length(3, 50)
-  personalId: string;
+  // ── Step 2: Security ──
+  @IsOptional()
+  @IsEmail()
+  email?: string;
 
-  /**
-   * Minimum 8 characters, at least one uppercase letter,
-   * one lowercase letter, one digit, and one special character.
-   */
   @IsString()
   @Matches(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\-_#])[A-Za-z\d@$!%*?&\-_#]{8,}$/,
@@ -45,6 +45,19 @@ export class RegisterDto {
     },
   )
   password: string;
+
+  // ── Step 3: Agreements ──
+  @IsBoolean()
+  @Equals(true, { message: 'You must accept the Terms & Conditions.' })
+  acceptedTerms: boolean;
+
+  @IsBoolean()
+  @Equals(true, { message: 'You must accept the Financing Agreement.' })
+  acceptedFinancingAgreement: boolean;
+
+  @IsBoolean()
+  @Equals(true, { message: 'You must confirm information accuracy.' })
+  confirmedAccuracy: boolean;
 
   @IsOptional()
   @IsString()

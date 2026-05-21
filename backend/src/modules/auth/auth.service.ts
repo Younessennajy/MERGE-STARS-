@@ -116,14 +116,20 @@ export class AuthService {
       passwordHash,
       roles: [Role.User],
       region: dto.region ?? 'geo',
+      acceptedTerms: dto.acceptedTerms,
+      acceptedFinancingAgreement: dto.acceptedFinancingAgreement,
+      confirmedAccuracy: dto.confirmedAccuracy,
     });
 
-    this.logger.log(`New user registered: ${user.email ?? user.phone} [${user.id}]`);
+    this.logger.log(
+      `New user registered: ${user.mergeId} [${user.id}]`,
+    );
 
     return {
       message: 'Account created successfully.',
       user: {
         id: user.id,
+        mergeId: user.mergeId,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
@@ -171,6 +177,7 @@ export class AuthService {
       expiresIn: this.config.get<string>('jwt.expiresIn'),
       user: {
         id: user.id,
+        mergeId: user.mergeId,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,

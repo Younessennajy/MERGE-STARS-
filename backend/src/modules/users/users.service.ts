@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from '../../common/enums/role.enum';
+import { generateMergeId } from '../../common/utils/merge-id.util';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -55,8 +56,25 @@ export class UsersService {
   }
 
   async create(data: Partial<User>): Promise<User> {
+    if (!data.mergeId) {
+      data.mergeId = await this.generateUniqueMergeId();
+    }
     const user = this.usersRepo.create(data);
     return this.usersRepo.save(user);
+  }
+
+  async generateUniqueMergeId(): Promise<string> {
+    for (let i = 0; i < 10; i++) {
+      const mergeId = generateMergeId();
+      const exists = await this.usersRepo.findOne({ where: { mergeId } });
+      if (!exists) return mergeId;
+    }
+    throw new ConflictException('Could not generate unique Merge ID.');
+  }
+
+  toPublicProfile(user: User) {
+    const { passwordHash: _, ...profile } = user;
+    return profile;
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<User> {

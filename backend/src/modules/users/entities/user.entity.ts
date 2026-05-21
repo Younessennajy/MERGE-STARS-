@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   Entity,
   Index,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -14,6 +13,11 @@ import { Exclude } from 'class-transformer';
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  /** Public identifier shown in dashboard — e.g. MS-782456 */
+  @Index({ unique: true })
+  @Column({ name: 'merge_id', length: 20 })
+  mergeId: string;
 
   @Column({ name: 'first_name', length: 100 })
   firstName: string;
@@ -45,6 +49,25 @@ export class User {
 
   @Column({ length: 10, default: 'geo' })
   region: string;
+
+  @Column({ name: 'accepted_terms', default: false })
+  acceptedTerms: boolean;
+
+  @Column({ name: 'accepted_financing_agreement', default: false })
+  acceptedFinancingAgreement: boolean;
+
+  @Column({ name: 'confirmed_accuracy', default: false })
+  confirmedAccuracy: boolean;
+
+  /** Merge Coin balance in MGS units (updated on approved applications) */
+  @Column({
+    name: 'merge_coin_balance',
+    type: 'decimal',
+    precision: 14,
+    scale: 2,
+    default: 0,
+  })
+  mergeCoinBalance: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
