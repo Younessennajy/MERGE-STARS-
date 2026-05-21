@@ -1,122 +1,116 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
-function App() {
-  const [count, setCount] = useState(0)
+// Core pages
+import LandingPage       from './pages/LandingPage'
+import LoginPage         from './pages/LoginPage'
+import DashboardPage     from './pages/DashboardPage'
+import ApplicationPage   from './pages/ApplicationPage'
+import CalculatorPage    from './pages/CalculatorPage'
+import StatusPage        from './pages/StatusPage'
+
+// Public pages
+import HowItWorksPage    from './pages/public/HowItWorksPage'
+import MergeCoinPage     from './pages/public/MergeCoinPage'
+import PriceIndicatorPage from './pages/public/PriceIndicatorPage'
+import FAQPage           from './pages/public/FAQPage'
+import ContactPage       from './pages/public/ContactPage'
+import TermsPage         from './pages/public/TermsPage'
+import PrivacyPage       from './pages/public/PrivacyPage'
+import ReferralPolicyPage from './pages/public/ReferralPolicyPage'
+
+// Dashboard pages
+import BrandLinePage     from './pages/dashboard/BrandLinePage'
+import QRIdentityPage    from './pages/dashboard/QRIdentityPage'
+import OrdersPage        from './pages/dashboard/OrdersPage'
+import PaymentPage       from './pages/dashboard/PaymentPage'
+import DeliveryPage      from './pages/dashboard/DeliveryPage'
+import ReferralPage      from './pages/dashboard/ReferralPage'
+import AIAssistantPage   from './pages/dashboard/AIAssistantPage'
+import ProfilePage       from './pages/dashboard/ProfilePage'
+import CoinsPage         from './pages/dashboard/CoinsPage'
+import MessagesPage      from './pages/dashboard/MessagesPage'
+import SettingsPage      from './pages/dashboard/SettingsPage'
+import InvestmentsPage   from './pages/dashboard/InvestmentsPage'
+import SupportPage       from './pages/dashboard/SupportPage'
+
+// Admin pages
+import AdminPage         from './pages/AdminPage'
+import AdminUsersPage    from './pages/admin/AdminUsersPage'
+import AdminKYCPage      from './pages/admin/AdminKYCPage'
+import AdminFinancePage  from './pages/admin/AdminFinancePage'
+import AdminCrystalPage  from './pages/admin/AdminCrystalPage'
+import AdminProductionPage from './pages/admin/AdminProductionPage'
+import AdminAuditPage    from './pages/admin/AdminAuditPage'
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage'
+
+import './App.css'
+import LuxuryCursor from './components/LuxuryCursor'
+
+/** Custom cursor only on marketing home — avoids click/tracking issues in app shell */
+function useLuxuryCursorEnabled() {
+  const { pathname } = useLocation()
+  return pathname === '/'
+}
+
+function AppRoutes() {
+  const luxuryCursor = useLuxuryCursorEnabled()
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      {luxuryCursor && <LuxuryCursor />}
+      <Routes>
+        {/* Public */}
+        <Route path="/"                element={<LandingPage />} />
+        <Route path="/how-it-works"    element={<HowItWorksPage />} />
+        <Route path="/merge-coin"      element={<MergeCoinPage />} />
+        <Route path="/price-indicator" element={<PriceIndicatorPage />} />
+        <Route path="/faq"             element={<FAQPage />} />
+        <Route path="/contact"         element={<ContactPage />} />
+        <Route path="/terms"                  element={<TermsPage />} />
+        <Route path="/terms-and-conditions"  element={<Navigate to="/terms" replace />} />
+        <Route path="/privacy"         element={<PrivacyPage />} />
+        <Route path="/referral-policy" element={<ReferralPolicyPage />} />
 
-      <div className="ticks"></div>
+        {/* Auth */}
+        <Route path="/login"           element={<LoginPage />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {/* User */}
+        <Route path="/dashboard"              element={<DashboardPage />} />
+        <Route path="/dashboard/profile"      element={<ProfilePage />} />
+        <Route path="/dashboard/coins"        element={<CoinsPage />} />
+        <Route path="/dashboard/investments"  element={<InvestmentsPage />} />
+        <Route path="/dashboard/messages"     element={<MessagesPage />} />
+        <Route path="/dashboard/settings"     element={<SettingsPage />} />
+        <Route path="/dashboard/support"      element={<SupportPage />} />
+        <Route path="/dashboard/brand"        element={<BrandLinePage />} />
+        <Route path="/dashboard/qr"           element={<QRIdentityPage />} />
+        <Route path="/dashboard/orders"       element={<OrdersPage />} />
+        <Route path="/dashboard/payment"      element={<PaymentPage />} />
+        <Route path="/dashboard/delivery"      element={<DeliveryPage />} />
+        <Route path="/dashboard/referral"      element={<ReferralPage />} />
+        <Route path="/dashboard/ai"            element={<AIAssistantPage />} />
+        <Route path="/apply"              element={<ApplicationPage />} />
+        <Route path="/calculator"         element={<CalculatorPage />} />
+        <Route path="/status"             element={<StatusPage />} />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+        {/* Admin */}
+        <Route path="/admin"               element={<AdminPage />} />
+        <Route path="/admin/users"         element={<AdminUsersPage />} />
+        <Route path="/admin/kyc"           element={<AdminKYCPage />} />
+        <Route path="/admin/finance"       element={<AdminFinancePage />} />
+        <Route path="/admin/crystal"       element={<AdminCrystalPage />} />
+        <Route path="/admin/production"    element={<AdminProductionPage />} />
+        <Route path="/admin/audit"         element={<AdminAuditPage />} />
+        <Route path="/admin/analytics"     element={<AdminAnalyticsPage />} />
+      </Routes>
     </>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  )
+}
