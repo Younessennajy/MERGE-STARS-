@@ -408,36 +408,6 @@ Error responses:
 }
 ```
 
----
-
-### Auth
-
-#### `POST /api/auth/setup` — Create first admin (one-time)
-
-```bash
-curl -X POST http://localhost:3000/api/auth/setup \
-  -H "Content-Type: application/json" \
-  -d '{
-    "firstName": "Super",
-    "lastName": "Admin",
-    "email": "admin@mergestars.com",
-    "personalId": "ADMIN-001",
-    "password": "Admin@123456"
-  }'
-```
-
-```json
-{
-  "data": {
-    "message": "Admin account created successfully. This endpoint is now permanently disabled.",
-    "admin": {
-      "id": "uuid",
-      "email": "admin@mergestars.com",
-      "roles": ["admin"]
-    }
-  }
-}
-```
 
 #### `POST /api/auth/register` — User registration (3 steps)
 
